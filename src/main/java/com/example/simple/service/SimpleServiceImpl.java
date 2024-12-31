@@ -12,6 +12,8 @@ import com.example.simple.entity.Users;
 import com.example.simple.model.UsersDetails;
 import com.example.simple.repository.UserRepository;
 
+import jakarta.validation.ValidationException;
+
 @Service
 public class SimpleServiceImpl implements SimpleService {
 
@@ -20,9 +22,14 @@ public class SimpleServiceImpl implements SimpleService {
 
 	@Override
 	public List<UsersDetails> getAllUsersDetails() {
-		List<UsersDetails> usersDetailsList = new ArrayList<>();
-
 		List<Users> usersList = userRepo.findAll();
+
+		List<UsersDetails> usersDetailsList = userDetailsMapping(usersList);
+		return usersDetailsList;
+	}
+
+	private List<UsersDetails> userDetailsMapping(List<Users> usersList) {
+		List<UsersDetails> usersDetailsList = new ArrayList<>();
 
 		usersList.stream().forEach(users -> {
 			UsersDetails userDetails = new UsersDetails();
@@ -53,6 +60,55 @@ public class SimpleServiceImpl implements SimpleService {
 
 		return saveResponse;
 
+	}
+
+	@Override
+	public List<UsersDetails> searchByUserName(String name) {
+
+		if (name.length() < 3) {
+			throw new ValidationException("user Name Required atleast 3 character");
+		}
+
+		List<Users> usersList = userRepo.searchByUserName(name);
+
+		List<UsersDetails> usersDetailsList = userDetailsMapping(usersList);
+		return usersDetailsList;
+	}
+
+	@Override
+	public Users updateUsersdetails(String userUID, UsersDetails usersdetails) {
+		Users existingUsers = null;
+		existingUsers = userRepo.findByUserUID(userUID);
+
+		if (existingUsers != null) {
+			existingUsers.setUserName(
+					usersdetails.getUserName() != null ? usersdetails.getUserName() : existingUsers.getUserName());
+			existingUsers.setAddress(
+					usersdetails.getAddress() != null ? usersdetails.getAddress() : existingUsers.getAddress());
+			existingUsers.setPhoneNo(
+					usersdetails.getPhoneNo() != null ? usersdetails.getPhoneNo() : existingUsers.getPhoneNo());
+
+			return userRepo.saveAndFlush(existingUsers);
+
+		} else {
+			throw new ValidationException("UserUID Not Found : " + userUID);
+		}
+	}
+
+	@Override
+	public String deleteByUser(String userUID) {
+
+		Users existingUsers = null;
+		existingUsers = userRepo.findByUserUID(userUID);
+
+		if (existingUsers != null && existingUsers.getUserUID() != null) {
+
+			userRepo.deleteById(existingUsers.getId());
+
+			return "successfully deleted the user : " + existingUsers.getUserName();
+		} else {
+			throw new ValidationException("UserUID Not Found : " + userUID);
+		}
 	}
 
 }

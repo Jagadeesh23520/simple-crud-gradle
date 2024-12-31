@@ -1,8 +1,13 @@
 package com.example.simple.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsersDetails {
 
 	private int id;
+	@JsonProperty(value = "userUID")
 	private String userUID;
 	private String userName;
 	private String address;
