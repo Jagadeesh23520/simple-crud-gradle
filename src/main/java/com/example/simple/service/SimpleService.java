@@ -10,4 +10,10 @@ public interface SimpleService {
 	List<UsersDetails> getAllUsersDetails();
 
 	Users addUsersDetails(UsersDetails usersDetails);
+
+	List<UsersDetails> searchByUserName(String name);
+
+	Users updateUsersdetails(String userUID, UsersDetails usersdetails);
+
+	String deleteByUser(String userUID);
 }
