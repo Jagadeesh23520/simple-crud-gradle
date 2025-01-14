@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RequestMapping("/v1")
 public interface SimpleControllerAPI {
@@ -29,7 +30,7 @@ public interface SimpleControllerAPI {
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content) })
 	@GetMapping(value = "/getUsers", produces = "application/json")
-	public List<UsersDetails> getAllUserDetails();
+	public List<UsersDetails> getAllUserDetails(HttpServletRequest request);
 
 	@PostMapping(value = "/addUser", produces = "application/json")
 	public Users addUserDetails(@RequestBody UsersDetails usersDetails);
@@ -43,4 +44,8 @@ public interface SimpleControllerAPI {
 
 	@DeleteMapping(value = "/delete")
 	public ResponseEntity<String> deleteUserDetails(@RequestParam(required = true, value = "userUID") String useruid);
+
+	@GetMapping(value = "/userlogin")
+	public ResponseEntity<String> loginByUserName(HttpServletRequest request);
+
 }
