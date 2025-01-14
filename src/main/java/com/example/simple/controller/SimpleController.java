@@ -7,20 +7,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.simple.config.CacheService;
 import com.example.simple.entity.Users;
 import com.example.simple.model.UsersDetails;
 import com.example.simple.service.SimpleService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 public class SimpleController implements SimpleControllerAPI {
 
-	private static final String num = "\\d+"; //"[0-9]+"
+	private static final String num = "\\d+"; // "[0-9]+"
 
 	@Autowired
 	SimpleService simpleService;
 
+	@Autowired
+	CacheService cacheService;
+
 	@Override
-	public List<UsersDetails> getAllUserDetails() {
+	public List<UsersDetails> getAllUserDetails(HttpServletRequest request) {
+
+		HttpSession session = request.getSession();
+		String sessionID = session.getId();
 
 		return simpleService.getAllUsersDetails();
 	}
@@ -95,4 +105,29 @@ public class SimpleController implements SimpleControllerAPI {
 		return usersDetailsResponse;
 	}
 
+	@Override
+	public ResponseEntity<String> loginByUserName(HttpServletRequest request) {
+
+		ResponseEntity<String> response = null;
+		String userUID = request.getHeader("userUID");
+		String userName = request.getHeader("userName");
+		String password = request.getHeader("password");
+
+		HttpSession session = request.getSession();
+
+		String session_userUID = (String) session.getAttribute(session.getId() + "USERUID_CACHE");
+
+		String userUID_cache = (String) cacheService.getCache(session.getId(), "USERUID_CACHE");
+
+		if (userUID.equals(session_userUID) || userUID.equals(userUID_cache)) {
+			response = new ResponseEntity<String>("user login successfully : " + userUID_cache, HttpStatus.ACCEPTED);
+		} else {
+			response = new ResponseEntity<String>("userUID not match with cache : " + userUID_cache, HttpStatus.OK);
+		}
+		System.out.println("userUID input : " + userUID);
+		System.out.println("userUID cache : " + userUID_cache);
+		System.out.println("session userUID cache : " + session_userUID);
+
+		return response;
+	}
 }
