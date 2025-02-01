@@ -115,18 +115,18 @@ public class SimpleController implements SimpleControllerAPI {
 
 		HttpSession session = request.getSession();
 
-		String session_userUID = (String) session.getAttribute(session.getId() + "USERUID_CACHE");
+//		String session_userUID = (String) session.getAttribute(session.getId() + "USERUID_CACHE");
 
 		String userUID_cache = (String) cacheService.getCache(session.getId(), "USERUID_CACHE");
 
-		if (userUID.equals(session_userUID) || userUID.equals(userUID_cache)) {
+		if (userUID.equals(userUID_cache)) {
 			response = new ResponseEntity<String>("user login successfully : " + userUID_cache, HttpStatus.ACCEPTED);
 		} else {
 			response = new ResponseEntity<String>("userUID not match with cache : " + userUID_cache, HttpStatus.OK);
 		}
 		System.out.println("userUID input : " + userUID);
 		System.out.println("userUID cache : " + userUID_cache);
-		System.out.println("session userUID cache : " + session_userUID);
+//		System.out.println("session userUID cache : " + session_userUID);
 
 		return response;
 	}
